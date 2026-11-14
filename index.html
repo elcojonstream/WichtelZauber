@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>Wichtel-Zauber</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg1:#0b1d33;--bg2:#1c0f2e;--card:rgba(255,255,255,.09);--tx:#fdf6e9;--mut:#b9c3d6;--red:#c8102e;--gold:#f4c95d;--green:#1f7a4d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Georgia,'Times New Roman',serif;color:var(--tx);background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;overflow-x:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:28px 18px 60px;text-align:center}
+h1{font-size:2.1rem;margin:.2em 0;color:var(--gold);text-shadow:0 0 18px rgba(244,201,93,.5)}
+p.sub{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:20px;margin:16px 0;text-align:left}
+textarea,input{width:100%;font:inherit;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.3);color:var(--tx)}
+textarea{min-height:130px;resize:vertical}
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:12px 22px;background:var(--red);color:#fff;font-weight:bold;box-shadow:0 4px 14px rgba(200,16,46,.45);transition:transform .15s}
+button:hover{transform:scale(1.04)}
+button.small{padding:8px 14px;font-size:.9rem;background:var(--green);box-shadow:none}
+.row{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.row b{flex:1 1 100%;color:var(--gold)}
+.row input{flex:1;min-width:0;font-size:.8rem}
+.err{color:#ff9b9b;min-height:1.2em;margin:8px 0 0}
+.hide{display:none}
+/* Geschenk */
+.gift{position:relative;width:170px;height:170px;margin:30px auto 10px;cursor:pointer;animation:bob 2.4s ease-in-out infinite}
+.gift .box{position:absolute;bottom:0;left:10px;width:150px;height:105px;background:var(--red);border-radius:6px;box-shadow:inset -14px 0 rgba(0,0,0,.18)}
+.gift .box:before{content:"";position:absolute;left:62px;top:0;width:26px;height:100%;background:var(--gold)}
+.gift .lid{position:absolute;bottom:100px;left:2px;width:166px;height:34px;background:#e0243f;border-radius:6px;transition:transform .8s cubic-bezier(.5,-.6,.5,1.2),opacity .8s;transform-origin:left bottom}
+.gift .lid:before{content:"";position:absolute;left:70px;top:0;width:26px;height:100%;background:var(--gold)}
+.gift .lid:after{content:"🎀";position:absolute;left:62px;top:-34px;font-size:40px}
+.gift.open{animation:none}
+.gift.open .lid{transform:translateY(-120px) rotate(-35deg);opacity:0}
+@keyframes bob{50%{transform:translateY(-10px) rotate(2deg)}}
+.name{font-size:2.6rem;color:var(--gold);margin:10px 0;opacity:0;transform:scale(.3);text-shadow:0 0 24px rgba(244,201,93,.8);word-break:break-word}
+.name.show{animation:pop 1s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes pop{to{opacity:1;transform:scale(1)}}
+.hint{color:var(--mut)}
+#garland{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:30px;display:flex;justify-content:space-around;z-index:2;pointer-events:none;border-top:2px solid rgba(255,255,255,.2)}
+#garland span{width:10px;height:14px;margin-top:2px;border-radius:50%;background:var(--c);box-shadow:0 0 12px 4px var(--c);animation:tw 1.5s ease-in-out infinite}
+@keyframes tw{50%{opacity:.25}}
+.sleigh{position:fixed;top:56px;left:-240px;font-size:40px;white-space:nowrap;z-index:0;pointer-events:none;animation:fly 24s linear infinite}
+.sleigh span{display:inline-block;transform:scaleX(-1);filter:drop-shadow(0 0 10px #f4c95d)}
+@keyframes fly{from{transform:translate(0,0)}50%{transform:translate(55vw,24px)}to{transform:translate(calc(100vw + 300px),-6px)}}
+.rays{position:fixed;left:50%;top:300px;width:1000px;height:1000px;margin:-500px 0 0 -500px;background:repeating-conic-gradient(rgba(244,201,93,.3) 0 8deg,transparent 8deg 20deg);-webkit-mask:radial-gradient(circle,#000 5%,transparent 65%);mask:radial-gradient(circle,#000 5%,transparent 65%);opacity:0;transition:opacity 1.5s;animation:spin 30s linear infinite;pointer-events:none;z-index:0}
+.rays.on{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:5}
+#flash.go{animation:fl 1s ease-out}
+@keyframes fl{0%{opacity:.85}100%{opacity:0}}
+.gift.shake{animation:shake .12s infinite}
+@keyframes shake{25%{transform:rotate(-6deg) translateX(-5px)}75%{transform:rotate(6deg) translateX(5px)}}
+.name.on{opacity:1;transform:none}
+.sack{position:relative;width:170px;height:190px;margin:30px auto 10px;cursor:pointer;animation:bob 2.4s ease-in-out infinite}
+.sbody{position:absolute;bottom:0;left:10px;width:150px;height:150px;background:radial-gradient(circle at 35% 30%,#c98a54,#8c5a30);border-radius:48% 48% 40% 40%/55% 55% 45% 45%;box-shadow:inset -12px -10px 20px rgba(0,0,0,.25)}
+.stie{position:absolute;top:18px;left:45px;width:80px;height:50px;background:#a8683a;border-radius:40% 40% 10px 10px;transition:transform .5s}
+.stie:before{content:"";position:absolute;top:-16px;left:-8px;right:-8px;height:28px;background:#b9733f;border-radius:50% 50% 30% 30%}
+.stie:after{content:"";position:absolute;bottom:6px;left:0;right:0;height:10px;background:var(--red);border-radius:6px}
+.sack.wobble{animation:sw .18s infinite}
+@keyframes sw{25%{transform:rotate(-5deg) scale(1.03)}75%{transform:rotate(5deg) scale(.98)}}
+.sack.open{animation:none}
+.sack.open .stie{transform:translateY(-14px) rotate(-8deg) scaleX(1.3)}
+.sack.open .sbody{animation:squash .6s ease-out}
+@keyframes squash{30%{transform:scale(1.08,.88)}60%{transform:scale(.96,1.08)}}
+.pop{position:absolute;left:68px;top:20px;font-size:34px;pointer-events:none;animation:popo 1.7s ease-out both}
+@keyframes popo{0%{transform:translate(0,0) scale(.3);opacity:1}55%{transform:translate(calc(var(--dx)*.7),-190px) rotate(calc(var(--r)*.6)) scale(1.1);opacity:1}100%{transform:translate(var(--dx),40px) rotate(var(--r));opacity:0}}
+.wand{position:relative;width:200px;height:200px;margin:30px auto 10px;cursor:pointer}
+.wstick{position:absolute;left:94px;bottom:10px;width:12px;height:150px;border-radius:6px;background:linear-gradient(#fff 0 10%,#2a2140 10% 90%,#fff 90%);transform-origin:50% 100%;transform:rotate(30deg);animation:wob 2s ease-in-out infinite alternate;box-shadow:0 0 10px rgba(244,201,93,.5)}
+@keyframes wob{to{transform:rotate(42deg)}}
+#wstar{position:absolute;top:-38px;left:-14px;width:40px;height:40px;font-size:40px;line-height:40px;text-align:center;color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 6px #fff}
+.wand.wave .wstick{animation:wave 1.3s ease-in-out forwards}
+@keyframes wave{0%{transform:rotate(30deg)}20%{transform:rotate(-35deg)}45%{transform:rotate(45deg)}70%{transform:rotate(-30deg)}100%{transform:rotate(15deg)}}
+.name.magic span{animation:appear .9s ease-out forwards}
+@keyframes appear{from{opacity:0;filter:blur(14px);transform:scale(2.5)}to{opacity:1;filter:blur(0);transform:none}}
+#mute{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;width:46px;height:46px;padding:0;font-size:22px;background:rgba(255,255,255,.15);box-shadow:none}
+.name span{display:inline-block;opacity:0;animation:drop .7s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes drop{from{opacity:0;transform:translateY(-80px) scale(2.2) rotate(-25deg)}to{opacity:1;transform:none}}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="garland"></div><div class="sleigh"><span>🦌🦌🦌🛷</span></div><div class="rays" id="rays"></div><div id="flash"></div><button id="mute" title="Ton an/aus">🔔</button>
+<main>
+<h1>🎄 Wichtel-Zauber 🎅</h1>
+
+<section id="setup"><p class="sub">Namen eingeben – jeder bekommt einen geheimen Zauber-Link.</p>
+ <div id="form" class="card"><label for="names">Teilnehmer (ein Name pro Zeile oder mit Komma getrennt)</label><br><br>
+  <textarea id="names" placeholder="Anna&#10;Ben&#10;Clara&#10;David"></textarea><p class="err" id="err"></p>
+  <button id="go">✨ Wichtel zuweisen</button></div>
+ <div id="result" class="hide"><div class="card" id="stat"></div>
+  <div class="row"><button class="small" id="show">Zuordnung anzeigen</button><button class="small" id="reset">Neu starten</button></div>
+  <div id="list"></div></div>
+</section>
+
+<section id="reveal" class="hide">
+ <p class="sub" id="hello"></p>
+ <div class="gift" id="gift"><div class="box"></div><div class="lid"></div></div>
+ <div class="sack hide" id="sack"><div class="sbody"></div><div class="stie"></div></div>
+ <div class="wand hide" id="wand"><div class="wstick"><span id="wstar">★</span></div></div>
+ <p class="hint" id="tap">Tippe auf das Geschenk, um zu sehen, wen du beschenkst 🎁</p>
+ <div class="name" id="who"></div>
+ <p class="hint hide" id="shh">Pssst – verrate es niemandem! 🤫</p>
+</section>
+
+<section id="manual" class="hide card">
+ <p>Hast du nur einen Code bekommen? Hier einfügen:</p>
+ <input id="code" placeholder="Zauber-Code">
+ <p class="err" id="err2"></p><button id="useCode">Öffnen</button>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+/* Schnee */
+const cv=$('c'),cx=cv.getContext('2d');let W,H,flakes=[],sparks=[],stars=[];
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}rs();addEventListener('resize',rs);
+for(let i=0;i<90;i++)stars.push({x:Math.random(),y:Math.random()*.7,r:Math.random()*1.4+.3,p:Math.random()*6});for(let i=0;i<110;i++)flakes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+1,s:Math.random()*1+.4,d:Math.random()*6});
+function burst(x=W/2,y=H/2.6,n=90){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=Math.random()*6+2;sparks.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,l:80+Math.random()*40,c:['#f4c95d','#ff4d6d','#fff','#5eead4','#7aa2ff'][i%5]})}}
+function fireworks(){for(let i=0;i<6;i++)setTimeout(()=>burst(W*(.12+Math.random()*.76),H*(.12+Math.random()*.4),70),i*330)}
+(function loop(t){cx.clearRect(0,0,W,H);stars.forEach(s=>{cx.fillStyle='rgba(255,246,200,'+(.35+.65*Math.abs(Math.sin(t/700+s.p)))+')';cx.beginPath();cx.arc(s.x*W,s.y*H,s.r,0,6.28);cx.fill()});cx.fillStyle='rgba(255,255,255,.85)';
+ flakes.forEach(f=>{f.y+=f.s;f.x+=Math.sin(t/1000+f.d)*.5;if(f.y>H){f.y=-5;f.x=Math.random()*W}cx.beginPath();cx.arc(f.x,f.y,f.r,0,6.28);cx.fill()});
+ sparks=sparks.filter(p=>p.l>0);sparks.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.l--;cx.fillStyle=p.c;cx.globalAlpha=Math.min(1,p.l/40);cx.fillRect(p.x,p.y,4,4)});cx.globalAlpha=1;
+ requestAnimationFrame(loop)})(0);
+
+/* Kodierung (nur Buchstaben/Ziffern, damit der Link funktioniert) */
+const hex=b=>[...b].map(x=>x.toString(16).padStart(2,'0')).join('');
+function enc(giver,recv,id){const k=crypto.getRandomValues(new Uint8Array(4));const d=new TextEncoder().encode(giver+'\n'+recv+'\n'+id);
+ return hex(k)+hex(d.map((x,i)=>x^k[i%4]))}
+function dec(c){try{c=c.trim().replace(/^w-/,'');const b=c.match(/../g).map(h=>parseInt(h,16));const k=b.slice(0,4);
+ const d=new Uint8Array(b.slice(4).map((x,i)=>x^k[i%4]));const [g,r,id]=new TextDecoder().decode(d).split('\n');return r?{g,r,id,v:k[0]%3}:null}catch(e){return null}}
+
+/* Zuweisung: zufälliger Ring – niemand zieht sich selbst */
+function assign(n){const a=[...n];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a.map((g,i)=>[g,a[(i+1)%a.length]])}
+
+const KEY='wichtel-liste';let S={draw:[]},showMap=false;
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))||{draw:[]}}catch(e){S={draw:[]}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function track(){}
+function render(){const dr=S.draw.length>0;$('form').classList.toggle('hide',dr);$('result').classList.toggle('hide',!dr);if(!dr)return;
+ const base=location.href.split('#')[0],sent=S.draw.filter(x=>x.sent).length;
+ $('stat').textContent='Links verschickt: '+sent+' von '+S.draw.length;
+ $('show').textContent=showMap?'Zuordnung verbergen':'Zuordnung anzeigen';
+ const L=$('list');L.innerHTML='';
+ S.draw.forEach(x=>{const link=base+'#w-'+x.code,row=el('div','card row');
+  row.appendChild(el('b','',x.giver+(showMap?'  →  🎁 '+x.recv:'')));
+  const inp=el('input');inp.readOnly=true;inp.value=link;inp.onclick=()=>inp.select();
+  const cp=el('button','small','Kopieren');cp.onclick=async()=>{try{await navigator.clipboard.writeText(link);cp.textContent='Kopiert ✓'}catch(e){inp.select();cp.textContent='Markiert'}};
+  const lab=el('label','hint'),cb=document.createElement('input');cb.type='checkbox';cb.checked=!!x.sent;cb.style.cssText='width:auto;flex:none';
+  cb.onchange=()=>{x.sent=cb.checked;save();render()};lab.append(cb,' Link verschickt');row.append(inp,cp,lab);L.appendChild(row)})}
+$('go').onclick=()=>{const n=[...new Set($('names').value.split(/[\n,;]+/).map(t=>t.trim()).filter(Boolean))];
+ if(n.length<3){$('err').textContent='Bitte mindestens 3 verschiedene Namen eingeben.';return}$('err').textContent='';
+ S={draw:assign(n).map(([g,r])=>({giver:g,recv:r,code:enc(g,r),sent:false})).sort((a,b)=>a.giver.localeCompare(b.giver))};save();showMap=false;render();burst();fireworks()};
+$('show').onclick=()=>{showMap=!showMap;render()};
+$('reset').onclick=()=>{const b=$('reset');if(!b.dataset.c){b.dataset.c=1;b.textContent='Wirklich? Nochmal klicken';return}S={draw:[]};save();b.dataset.c='';b.textContent='Neu starten';render()};
+function init(){load();render()}
+const gl=$('garland');for(let i=0;i<24;i++){const s=document.createElement('span');s.style.cssText='--c:'+['#ff4d6d','#f4c95d','#5eead4','#7aa2ff'][i%4]+';animation-delay:'+(i%6*.25)+'s';gl.appendChild(s)}
+function letters(n){const w=$('who');w.textContent='';w.classList.add('on');[...n].forEach((ch,i)=>{const s=document.createElement('span');s.textContent=ch===' '?'\u00a0':ch;s.style.animationDelay=(i*.12)+'s';w.appendChild(s)})}
+let ac=null,mute=false;
+function initAudio(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.resume)ac.resume()}
+function bell(f,t0,dur=1.6,vol=.16){if(mute||!ac)return;const T=ac.currentTime+t0,g=ac.createGain();g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(vol,T+.01);g.gain.exponentialRampToValueAtTime(.0001,T+dur);g.connect(ac.destination);[[f,1],[f*2.76,.35]].forEach(([fr,v])=>{const o=ac.createOscillator(),h=ac.createGain();o.frequency.value=fr;h.gain.value=v;o.connect(h);h.connect(g);o.start(T);o.stop(T+dur)})}
+function shakeSound(){for(let i=0;i<8;i++)bell(1800+Math.random()*900,i*.13,.35,.07)}
+function chime(){[1046,1318,1568,2093].forEach((f,i)=>bell(f,i*.09,1.8,.14))}
+function jingle(){const E=659.25,G=783.99,C=523.25,D=587.33,n=[[E,1],[E,1],[E,2],[E,1],[E,1],[E,2],[E,1],[G,1],[C,1.5],[D,.5],[E,3]];let t=0;n.forEach(([f,b])=>{bell(f,t,.9,.14);t+=b*.3})}
+$('mute').onclick=()=>{mute=!mute;$('mute').textContent=mute?'🔕':'🔔'};
+function variants(d){const v=d.v||0;$('gift').classList.toggle('hide',v!==0);$('sack').classList.toggle('hide',v!==1);$('wand').classList.toggle('hide',v!==2);if(v===0)return;
+ $('tap').textContent=v===1?'Tippe auf den Sack, um hineinzugreifen 🎅':'Tippe auf den Zauberstab und sprich den Zauber ✨';
+ if(v===1)$('sack').onclick=sackGo(d);else $('wand').onclick=wandGo(d)}
+function sackGo(d){return()=>{const s=$('sack');if(s.dataset.d)return;s.dataset.d=1;initAudio();shakeSound();s.classList.add('wobble');$('tap').textContent='Ho ho ho! 🎅';
+ setTimeout(()=>{s.classList.remove('wobble');s.classList.add('open');chime();$('flash').classList.add('go');for(let i=0;i<16;i++){const p=document.createElement('span');p.className='pop';p.textContent=['🎁','⭐','🍬','🎄','🔔','🧦'][i%6];p.style.setProperty('--dx',(Math.random()*320-160)+'px');p.style.setProperty('--r',(Math.random()*720-360)+'deg');p.style.animationDelay=(i*.06)+'s';s.appendChild(p)}burst()},1100);
+ setTimeout(()=>{$('rays').classList.add('on');letters(d.r);jingle();$('shh').classList.remove('hide');burst();fireworks()},2300)}}
+function wandGo(d){return()=>{const w=$('wand');if(w.dataset.d)return;w.dataset.d=1;initAudio();$('tap').textContent='Simsalabim! ✨';w.classList.add('wave');
+ const iv=setInterval(()=>{const r=$('wstar').getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,8);bell(1200+Math.random()*1500,0,.5,.06)},70);
+ setTimeout(()=>{clearInterval(iv);chime();$('flash').classList.add('go');$('rays').classList.add('on');burst(W/2,H*.4,140)},1300);
+ setTimeout(()=>{$('who').classList.add('magic');letters(d.r);jingle();$('shh').classList.remove('hide');fireworks()},2000)}}
+/* Enthüllung */
+function show(d){
+ $('setup').classList.add('hide');$('manual').classList.add('hide');$('reveal').classList.remove('hide');
+ track(d.id);$('hello').textContent='Frohe Weihnachten, '+d.g+'!';
+ $('gift').onclick=()=>{const g=$('gift');if(g.classList.contains('open'))return;initAudio();shakeSound();g.classList.add('shake');$('tap').classList.add('hide');setTimeout(()=>{g.classList.remove('shake');g.classList.add('open');$('flash').classList.add('go');$('rays').classList.add('on');chime();burst();fireworks()},1100);
+  setTimeout(()=>{letters(d.r);jingle();$('shh').classList.remove('hide');burst();fireworks()},2000)};
+ variants(d);
+}
+function route(){const h=location.hash.slice(1);
+ if(h.startsWith('w-')){const d=dec(h);if(d){show(d);return}$('manual').classList.remove('hide')}}
+$('useCode').onclick=()=>{const d=dec($('code').value.split('#').pop());if(d)show(d);else $('err2').textContent='Dieser Code ist ungültig.'};
+addEventListener('hashchange',route);route();init();
+</script></body></html>
